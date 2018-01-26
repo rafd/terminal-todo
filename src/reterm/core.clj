@@ -4,15 +4,6 @@
     [reterm.draw :refer [draw!]]
     [reterm.state :as state]))
 
-(defn handle-key! [key]
-  (case key
-    \k (state/cursor-up!)
-    \j (state/cursor-down!)
-    \h (state/cursor-left!)
-    \l (state/cursor-right!)
-    ; default 
-    (state/escape!)))
-
 (defn run-loop! [screen context component]
   (draw! screen context component)
   (let [cursor (state/cursor)]
@@ -25,7 +16,7 @@
                    (cursor :x)
                    (cursor :y)))
   (s/redraw screen)
-  (handle-key! (s/get-key-blocking screen)))
+  (state/handle-key! (s/get-key-blocking screen)))
 
 (defn render [mode component]
   (let [screen (s/get-screen mode)
