@@ -56,8 +56,8 @@
          (fn [x]
            (bound 0 (inc x) (get-in @state [:screen :width])))))
 
-(defn- escape! []
-  (swap! state assoc :run? false))
+(defn set-running-state! [bool]
+  (swap! state assoc :run? bool))
 
 (defn store-screen-size! [[width height]]
   (swap! state assoc :screen {:width width
@@ -70,4 +70,4 @@
     \h (cursor-left!)
     \l (cursor-right!)
     ; default 
-    (escape!)))
+    (set-running-state! false)))

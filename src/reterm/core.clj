@@ -29,6 +29,7 @@
                  :bg :default
                  :fg :default}]
 
+    (state/set-running-state! true)
     (state/store-screen-size! [width height])
 
     (while (state/running?)
