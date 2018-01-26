@@ -20,7 +20,12 @@
 (defn app-view []
   [:div {:bg :red
          :height :stretch}
-   [tasks-view ["foo" "bar" "baz"]]])
+   "hello" " " "world"
+   [:div {:bg :green} "test"]
+   [:div {:bg :yellow} "test"]
+   "test"
+   [tasks-view ["foo" "bar" "baz"]]
+   "after"])
 
 (defn start! []
   (r/render :swing [app-view]))

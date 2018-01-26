@@ -5,7 +5,7 @@
     [reterm.state :as state]))
 
 (defn run-loop! [screen context component]
-  (draw! screen context component)
+  (draw! screen context component true)
   (let [cursor (state/cursor)]
     (when (cursor :value) 
       (s/put-string screen 
