@@ -7,3 +7,6 @@
 
 (defn running? []
   (@state :run?))
+
+(defn tasks []
+  (@state :tasks))

@@ -1,6 +1,8 @@
 (ns todo.core
   (:require 
     [lanterna.screen :as s]
+    [reterm.core :as r]
+    [todo.views :refer [app-view]]
     [todo.transact :as tx]
     [todo.subscribe :as sub]))
 
@@ -14,8 +16,7 @@
     (tx/escape!)))
 
 (defn draw! [scr]
-  (s/put-string scr 10 10 "Hello, world!")
-  (s/put-string scr 10 11 "Press any key to exit!")
+  (r/render scr [app-view])
   (let [cursor (sub/cursor)]
     (when (cursor :value) 
       (s/put-string scr 
