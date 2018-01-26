@@ -1,45 +1,8 @@
 (ns todo.core
   (:require 
-    [lanterna.screen :as s]
     [reterm.core :as r]
-    [todo.views :refer [app-view]]
-    [todo.transact :as tx]
-    [todo.subscribe :as sub]))
-
-(defn handle-key! [key]
-  (case key
-    \k (tx/cursor-up!)
-    \j (tx/cursor-down!)
-    \h (tx/cursor-left!)
-    \l (tx/cursor-right!)
-    ; default 
-    (tx/escape!)))
-
-(defn draw! [scr]
-  (r/render scr [app-view])
-  (let [cursor (sub/cursor)]
-    (when (cursor :value) 
-      (s/put-string scr 
-                    (cursor :x)
-                    (cursor :y)
-                    (cursor :value)))
-    (s/move-cursor scr 
-                   (cursor :x)
-                   (cursor :y))))
-
-(defn run-loop! [scr]
-  (draw! scr)
-  (s/redraw scr)
-  (handle-key! (s/get-key-blocking scr)))
+    [todo.views :refer [app-view]]))
 
 (defn -main []
-  (let [mode :text ; :swing
-        scr (s/get-screen mode)]
-    (s/start scr)
-
-    (tx/store-screen-size! (s/get-size scr))
-
-    (while (sub/running?)
-      (run-loop! scr))
-
-    (s/stop scr)))
+  (let [mode (get [:swing :text] 0)]
+    (r/render mode [app-view])))

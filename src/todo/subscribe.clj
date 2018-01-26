@@ -2,11 +2,5 @@
   (:require
     [todo.state :refer [state]]))
 
-(defn cursor []
-  (@state :cursor))
-
-(defn running? []
-  (@state :run?))
-
 (defn tasks []
   (@state :tasks))
