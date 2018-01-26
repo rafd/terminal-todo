@@ -12,10 +12,15 @@
        (string/join " ")))
 
 (defn- generate-task []
-  {:description (random-text 5)
-   :tag (random-text 1)})
+  {:description (str "task " (random-text 5))
+   :tag (str "tag-" (random-text 1))})
+
+(defn- generate-task-group []
+  {:description (str "group " (random-text 5) ":")
+   :tasks (->> (repeatedly generate-task)
+               (take (rand-int 10)))})
 
 (defn init! []
   (swap! state assoc :tasks
-         (->> (repeatedly generate-task)
-              (take 50))))
+         (->> (repeatedly generate-task-group)
+              (take 3))))

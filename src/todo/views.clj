@@ -7,10 +7,21 @@
    (str "[" (task :tag) "]" " " (task :description))])
 
 (defn tasks-view [tasks]
-  [:div {:height :stretch}
+  [:div {:x 1}
    (for [task tasks]
      [task-view task])])
 
+(defn group-view [group]
+  [:div {:bg :red}
+   [:div {:bg :blue} (group :description)]
+   [tasks-view (group :tasks)]])
+
+(defn groups-view [groups]
+  [:div {:bg :yellow}
+   (for [group groups]
+     [group-view group])])
+
 (defn app-view []
-  [:div {:height :stretch}
-   [tasks-view (sub/tasks)]])
+  [:div {:height :stretch
+         :bg :green}
+   [groups-view (sub/tasks)]])
