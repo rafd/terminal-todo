@@ -2,9 +2,7 @@
   (:require 
     [lanterna.screen :as s]
     [todo.transact :as tx]
-    [todo.state :refer [state]]))
-
-; main logic
+    [todo.subscribe :as sub]))
 
 (defn handle-key! [key]
   (case key
@@ -18,14 +16,15 @@
 (defn draw! [scr]
   (s/put-string scr 10 10 "Hello, world!")
   (s/put-string scr 10 11 "Press any key to exit!")
-  (when (get-in @state [:cursor :value])
-    (s/put-string scr 
-                  (get-in @state [:cursor :x]) 
-                  (get-in @state [:cursor :y])
-                  (get-in @state [:cursor :value])))
-  (s/move-cursor scr 
-                 (get-in @state [:cursor :x]) 
-                 (get-in @state [:cursor :y])))
+  (let [cursor (sub/cursor)]
+    (when (cursor :value) 
+      (s/put-string scr 
+                    (cursor :x)
+                    (cursor :y)
+                    (cursor :value)))
+    (s/move-cursor scr 
+                   (cursor :x)
+                   (cursor :y))))
 
 (defn run-loop! [scr]
   (draw! scr)
@@ -37,11 +36,9 @@
         scr (s/get-screen mode)]
     (s/start scr)
 
-    (let [[width height] (s/get-size scr)]
-      (swap! state assoc :screen {:width width
-                                  :height height}))
+    (tx/store-screen-size! (s/get-size scr))
 
-    (while (@state :run?) 
+    (while (sub/running?)
       (run-loop! scr))
 
     (s/stop scr)))

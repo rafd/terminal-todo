@@ -25,3 +25,7 @@
 
 (defn escape! []
   (swap! state assoc :run? false))
+
+(defn store-screen-size! [[width height]]
+  (swap! state assoc :screen {:width width
+                              :height height}))
