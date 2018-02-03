@@ -69,5 +69,6 @@
     \j (cursor-down!)
     \h (cursor-left!)
     \l (cursor-right!)
+    :escape (set-running-state! false)
     ; default 
-    (set-running-state! false)))
+    (println "Don't know how to handle key:" (pr-str key))))
