@@ -14,7 +14,7 @@
 (defn group-view [group]
   [:div {:bg :red}
    [:div {:bg :blue} (group :description)]
-   [tasks-view (group :tasks)]])
+   [tasks-view (sub/group-tasks (group :id))]])
 
 (defn groups-view [groups]
   [:div {:bg :yellow}
@@ -24,4 +24,4 @@
 (defn app-view []
   [:div {:height :stretch
          :bg :green}
-   [groups-view (sub/tasks)]])
+   [groups-view (sub/groups)]])
