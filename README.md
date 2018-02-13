@@ -12,7 +12,7 @@ Wraps [clojure-lanterna](https://github.com/multimud/clojure-lanterna/), which w
 
 Ex.
 
-```
+```clojure
 (ns retermdemo.core
   (:require 
     [reterm.core :as r]))
@@ -35,7 +35,7 @@ Ex.
 (r/start! :swing [app-view])
 ```
 
-[example.png]
+![screenshot](./example.png)
 
 # terminal-todo
 
