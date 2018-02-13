@@ -19,7 +19,9 @@
 
 (defn app-view []
   [:div {:bg :red
-         :height :stretch}
+         :height :stretch
+         :on-keypress (fn [key]
+                        (println "pressed" key))}
    "hello" " " "world"
    [:div {:bg :green} "test"]
    [:div {:bg :yellow} "test"]

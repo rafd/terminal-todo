@@ -1,4 +1,6 @@
-(ns reterm.state) 
+(ns reterm.state
+  (:require
+    [reterm.dom :as dom])) 
 
 ; .------> x
 ; |
@@ -36,22 +38,22 @@
 
 ; transactions
 
-(defn- cursor-up! []
+(defn cursor-up! []
   (swap! state update-in [:cursor :y] 
          (fn [y]
            (bound 0 (dec y) (get-in @state [:screen :height])))))
 
-(defn- cursor-down! []
+(defn cursor-down! []
   (swap! state update-in [:cursor :y] 
          (fn [y]
            (bound 0 (inc y) (get-in @state [:screen :height])))))
 
-(defn- cursor-left! []
+(defn cursor-left! []
   (swap! state update-in [:cursor :x] 
          (fn [x]
            (bound 0 (dec x) (get-in @state [:screen :width])))))
 
-(defn- cursor-right! []
+(defn cursor-right! []
   (swap! state update-in [:cursor :x] 
          (fn [x]
            (bound 0 (inc x) (get-in @state [:screen :width])))))
@@ -63,12 +65,27 @@
   (swap! state assoc :screen {:width width
                               :height height}))
 
-(defn handle-key! [key]
-  (case key
-    \k (cursor-up!)
-    \j (cursor-down!)
-    \h (cursor-left!)
-    \l (cursor-right!)
-    :escape (set-running-state! false)
-    ; default 
-    (println "Don't know how to handle key:" (pr-str key))))
+(defn handle-key! [key root-dom-node]
+  ; loop through all nodes
+  ; filter those whose dimensions cover the cursor 
+  ; call :on-keypress on the nodes (in order of child->parent->root, ie. capture)
+
+  (let [containing-nodes 
+        (->> root-dom-node
+             dom/->nodes
+             (filter (fn [dom-node]
+                       (and (<= (get-in dom-node [:context :x]) 
+                                (get-in (cursor) [:x])
+                                (+ (get-in dom-node [:context :x])
+                                   (get-in dom-node [:context :width])
+                                   -1))
+                            (<= (get-in dom-node [:context :y]) 
+                                (get-in (cursor) [:y])
+                                (+ (get-in dom-node [:context :y])
+                                   (get-in dom-node [:context :height])
+                                   -1)))))
+             reverse)]
+    (doseq [dom-node containing-nodes]
+      (when (contains? (dom-node :opts) :on-keypress)
+        (((dom-node :opts) :on-keypress) key)))))
+
