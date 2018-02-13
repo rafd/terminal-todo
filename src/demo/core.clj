@@ -21,7 +21,10 @@
   [:div {:bg :red
          :height :stretch
          :on-keypress (fn [key]
-                        (println "pressed" key))}
+                        (println "pressed" key)
+                        (case key
+                          :escape (r/stop!)
+                          nil))}
    "hello" " " "world"
    [:div {:bg :green} "test"]
    [:div {:bg :yellow} "test"]

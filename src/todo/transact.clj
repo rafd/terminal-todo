@@ -1,6 +1,7 @@
 (ns todo.transact
   (:require
-    [reterm.state :as r]
+    [reterm.core :as r]
+    [reterm.state :as rs]
     [todo.state :refer [state]]
     [todo.generate :refer [generate-state]]))
 
@@ -12,8 +13,8 @@
   (reset! state (generate-state)))
 
 ; TODO should find a better way to do this
-(def cursor-up! r/cursor-up!)
-(def cursor-down! r/cursor-down!)
-(def cursor-left! r/cursor-left!)
-(def cursor-right! r/cursor-right!)
-(def set-running-state! r/set-running-state!)
+(def cursor-up! rs/cursor-up!)
+(def cursor-down! rs/cursor-down!)
+(def cursor-left! rs/cursor-left!)
+(def cursor-right! rs/cursor-right!)
+(def stop! r/stop!)

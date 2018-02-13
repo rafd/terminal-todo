@@ -37,3 +37,6 @@
       (run-loop! screen root-component))
 
     (s/stop screen)))
+
+(defn stop! []
+  (state/set-running-state! false))

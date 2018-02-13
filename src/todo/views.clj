@@ -43,7 +43,7 @@
                           \j (tx/cursor-down!)
                           \h (tx/cursor-left!)
                           \l (tx/cursor-right!)
-                          :escape (tx/set-running-state! false)
+                          :escape (tx/stop!)
                           ; default 
                           nil))}
    [groups-view (sub/groups)]])
