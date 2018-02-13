@@ -28,7 +28,7 @@
     (state/handle-key! (s/get-key-blocking screen) 
                        root-dom-node)))
 
-(defn render [mode root-component]
+(defn start! [mode root-component]
   (let [screen (s/get-screen mode)]
     (s/start screen)
     (state/set-running-state! true)

@@ -30,4 +30,4 @@
    "after"])
 
 (defn start! []
-  (r/render :swing [app-view]))
+  (r/start! :swing [app-view]))

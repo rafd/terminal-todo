@@ -6,7 +6,7 @@
 
 (defn start! [mode]
   (tx/init!)
-  (r/render mode [app-view]))
+  (r/start! mode [app-view]))
 
 (defn -main [& args]
   (let [mode (if (= (first args) "swing")
