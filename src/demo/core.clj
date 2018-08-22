@@ -20,7 +20,7 @@
 (defn app-view []
   [:div {:bg :red
          :height :stretch
-         :on-keypress (fn [key]
+         :on-keypress (fn [key _]
                         (println "pressed" key)
                         (case key
                           :escape (r/stop!)

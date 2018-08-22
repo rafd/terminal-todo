@@ -67,25 +67,29 @@
 
 (defn handle-key! [key root-dom-node]
   ; loop through all nodes
-  ; filter those whose dimensions cover the cursor 
+  ; filter those whose dimensions cover the cursor
   ; call :on-keypress on the nodes (in order of child->parent->root, ie. capture)
 
-  (let [containing-nodes 
+  (let [containing-nodes
         (->> root-dom-node
              dom/->nodes
              (filter (fn [dom-node]
-                       (and (<= (get-in dom-node [:context :x]) 
+                       (and (<= (get-in dom-node [:context :x])
                                 (get-in (cursor) [:x])
                                 (+ (get-in dom-node [:context :x])
                                    (get-in dom-node [:context :width])
                                    -1))
-                            (<= (get-in dom-node [:context :y]) 
+                            (<= (get-in dom-node [:context :y])
                                 (get-in (cursor) [:y])
                                 (+ (get-in dom-node [:context :y])
                                    (get-in dom-node [:context :height])
                                    -1)))))
              reverse)]
     (doseq [dom-node containing-nodes]
-      (when (contains? (dom-node :opts) :on-keypress)
-        (((dom-node :opts) :on-keypress) key)))))
+      (when-let [on-keypress-fn (get-in dom-node [:opts :on-keypress])]
+        (let [relative-cursor-position {:x (- (get (cursor) :x)
+                                              (get-in dom-node [:context :x]))
+                                        :y (- (get (cursor) :y)
+                                              (get-in dom-node [:context :y]))}]
+          (on-keypress-fn key relative-cursor-position))))))
 

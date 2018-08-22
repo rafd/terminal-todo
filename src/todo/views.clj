@@ -3,18 +3,23 @@
     [todo.subscribe :as sub]
     [todo.transact :as tx]))
 
+(defn insert-char
+  "Insert character i into string s at position i"
+  [s c i]
+  (str (subs s 0 i) c (subs s i)))
 
 (defn input-view [{:keys [value on-change]}]
-  [:div {:on-keypress 
-         (fn [key]
-           (when (= key \d)
-             (on-change "CHANGED")))}
+  [:div {:bg :green
+         :on-keypress
+         (fn [key {:keys [x]}]
+           (when (char? key)
+             (tx/cursor-right!)
+             (on-change (insert-char value key x))))}
    value])
-
 
 (defn task-view [task]
   [:div {}
-   (str "[" (task :tag) "]" " ") 
+   (str "[" (task :tag) "]" " ")
    [input-view {:value (task :description)
                 :on-change (fn [value]
                              (tx/update-task-description! (task :id) value))}]])
@@ -37,13 +42,13 @@
 (defn app-view []
   [:div {:height :stretch
          :bg :green
-         :on-keypress (fn [key]
+         :on-keypress (fn [key _]
                         (case key
-                          \k (tx/cursor-up!)
-                          \j (tx/cursor-down!)
-                          \h (tx/cursor-left!)
-                          \l (tx/cursor-right!)
+                          :up (tx/cursor-up!)
+                          :down (tx/cursor-down!)
+                          :left (tx/cursor-left!)
+                          :right (tx/cursor-right!)
                           :escape (tx/stop!)
-                          ; default 
+                          ; default
                           nil))}
    [groups-view (sub/groups)]])
