@@ -1,5 +1,5 @@
 (ns todo.core
-  (:require 
+  (:require
     [reterm.core :as r]
     [todo.views :refer [app-view]]
     [todo.transact :as tx]))

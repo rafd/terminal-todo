@@ -1,7 +1,7 @@
 This repo is currently home to two related projects:
 
  - *reterm* - a reagent / react-like way of creating terminal interfaces
- - *terminal-todo* - a todo list app that runs in your terminal (built with reterm) 
+ - *terminal-todo* - a todo list app that runs in your terminal (built with reterm)
 
 
 # reterm
@@ -14,7 +14,7 @@ Ex.
 
 ```clojure
 (ns retermdemo.core
-  (:require 
+  (:require
     [reterm.core :as r]))
 
 (defn sub-view [ns]

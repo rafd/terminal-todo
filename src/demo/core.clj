@@ -1,5 +1,5 @@
 (ns demo.core
-  (:require 
+  (:require
     [reterm.core :as r]))
 
 (defn task-view [task]

@@ -1,6 +1,6 @@
 (ns reterm.state
   (:require
-    [reterm.dom :as dom])) 
+    [reterm.dom :as dom]))
 
 ; .------> x
 ; |
@@ -9,7 +9,7 @@
 
 ; state
 
-(def state 
+(def state
   (atom {:cursor {:x 0
                   :y 0
                   :value nil}
@@ -20,13 +20,13 @@
 ; helpers
 
 (defn bound [lower value upper]
-  (cond 
+  (cond
     (< value lower)
     lower
     (> value upper)
     upper
     :else
-    value)) 
+    value))
 
 ; subscriptions
 
@@ -39,22 +39,22 @@
 ; transactions
 
 (defn cursor-up! []
-  (swap! state update-in [:cursor :y] 
+  (swap! state update-in [:cursor :y]
          (fn [y]
            (bound 0 (dec y) (get-in @state [:screen :height])))))
 
 (defn cursor-down! []
-  (swap! state update-in [:cursor :y] 
+  (swap! state update-in [:cursor :y]
          (fn [y]
            (bound 0 (inc y) (get-in @state [:screen :height])))))
 
 (defn cursor-left! []
-  (swap! state update-in [:cursor :x] 
+  (swap! state update-in [:cursor :x]
          (fn [x]
            (bound 0 (dec x) (get-in @state [:screen :width])))))
 
 (defn cursor-right! []
-  (swap! state update-in [:cursor :x] 
+  (swap! state update-in [:cursor :x]
          (fn [x]
            (bound 0 (inc x) (get-in @state [:screen :width])))))
 
