@@ -1,12 +1,13 @@
 (ns reterm.dom
   (:require
-    [clojure.walk :as walk]))
+    [clojure.walk :as walk]
+    [reterm.views :as views]))
 
 (defn- node->type [node]
   (cond
     ; [:keyword opts & body]
-    (and (coll? node) (keyword? (first node)) (= :div (first node)))
-    :div-list
+    (and (coll? node) (keyword? (first node)))
+    :keyword-list
 
     ; [fn & args]
     (and (coll? node) (fn? (first node)))
@@ -53,29 +54,34 @@
                        :context {:x "..."}
                        :value "world"}]}]}
 
-(defmulti calculate 
+(defmulti calculate
   (fn [parent-context node]
     (node->type node)))
 
-(defmethod calculate :div-list
+(defmethod calculate :keyword-list
   [parent-context [type opts & nodes]]
-  (let [; adjust context based on opts
+  (let [[type opts & nodes] (case type
+                              :input
+                              (views/input-view opts)
+                              ; else
+                              (concat [type opts] nodes))
+        ; adjust context based on opts
         context {:x (+ (parent-context :x)
                        (or (opts :x) 0))
                  :y (+ (parent-context :y)
                        (or (opts :y) 0))
                  :width (or (opts :width)
-                            (- (parent-context :width) 
+                            (- (parent-context :width)
                                (or (opts :x) 0)))
                  :height (cond
                            (int? (opts :height))
                            (opts :height)
 
-                           (= :stretch (opts :height)) 
+                           (= :stretch (opts :height))
                            (parent-context :height)
 
                            :else
-                           1) 
+                           1)
                  :fg (or (opts :fg)
                          (parent-context :fg))
                  :bg (or (opts :bg)
@@ -145,12 +151,3 @@
                       :bg :default
                       :fg :default}]
     (calculate root-context root-component)))
-
-(defn ->nodes
-  "Given dom hierarchy, convert it to a single list of nodes"
-  [dom-node]
-  (if (dom-node :content)
-    (concat [(dissoc dom-node :content)]
-            (mapcat ->nodes (dom-node :content)))
-    [dom-node]))
-

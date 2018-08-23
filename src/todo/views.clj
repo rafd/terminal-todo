@@ -3,43 +3,12 @@
     [todo.subscribe :as sub]
     [todo.transact :as tx]))
 
-(defn insert-char
-  "Insert character i into string s at position i,
-   if insertion point is beyond end of string, pads with spaces"
-  [s c i]
-  (if (<= i (count s))
-   (str (subs s 0 i) c (subs s i))
-   (str s (apply str (repeat (- i (count s)) " ")) c)))
-
-(defn remove-char
-  [s i]
-  (if (< i (count s))
-    (str (subs s 0 i) (subs s (inc i)))
-    s))
-
-(defn input-view [{:keys [value on-change]}]
-  [:div {:bg :green
-         :on-keypress
-         (fn [key {:keys [x]}]
-           (if (char? key)
-             (do
-               (tx/cursor-right!)
-               (on-change (insert-char value key x)))
-             (case key
-               :backspace
-               (do
-                 (when (< 0 x)
-                   (tx/cursor-left!)
-                   (on-change (remove-char value (dec x)))))
-               nil)))}
-   value])
-
 (defn task-view [task]
   [:div {}
    (str "[" (task :tag) "]" " ")
-   [input-view {:value (task :description)
-                :on-change (fn [value]
-                             (tx/update-task-description! (task :id) value))}]])
+   [:input {:value (task :description)
+            :on-change (fn [value]
+                         (tx/update-task-description! (task :id) value))}]])
 
 (defn tasks-view [tasks]
   [:div {:x 1}

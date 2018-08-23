@@ -1,6 +1,4 @@
-(ns reterm.state
-  (:require
-    [reterm.dom :as dom]))
+(ns reterm.state)
 
 ; .------> x
 ; |
@@ -65,6 +63,14 @@
   (swap! state assoc :screen {:width width
                               :height height}))
 
+(defn ->nodes
+  "Given dom hierarchy, convert it to a single list of nodes"
+  [dom-node]
+  (if (dom-node :content)
+    (concat [(dissoc dom-node :content)]
+            (mapcat ->nodes (dom-node :content)))
+    [dom-node]))
+
 (defn handle-key! [key root-dom-node]
   ; loop through all nodes
   ; filter those whose dimensions cover the cursor
@@ -72,7 +78,7 @@
 
   (let [containing-nodes
         (->> root-dom-node
-             dom/->nodes
+             ->nodes
              (filter (fn [dom-node]
                        (and (<= (get-in dom-node [:context :x])
                                 (get-in (cursor) [:x])
