@@ -4,9 +4,12 @@
     [todo.transact :as tx]))
 
 (defn insert-char
-  "Insert character i into string s at position i"
+  "Insert character i into string s at position i,
+   if insertion point is beyond end of string, pads with spaces"
   [s c i]
-  (str (subs s 0 i) c (subs s i)))
+  (if (<= i (count s))
+   (str (subs s 0 i) c (subs s i))
+   (str s (apply str (repeat (- i (count s)) " ")) c)))
 
 (defn input-view [{:keys [value on-change]}]
   [:div {:bg :green
