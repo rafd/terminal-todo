@@ -11,13 +11,27 @@
    (str (subs s 0 i) c (subs s i))
    (str s (apply str (repeat (- i (count s)) " ")) c)))
 
+(defn remove-char
+  [s i]
+  (if (< i (count s))
+    (str (subs s 0 i) (subs s (inc i)))
+    s))
+
 (defn input-view [{:keys [value on-change]}]
   [:div {:bg :green
          :on-keypress
          (fn [key {:keys [x]}]
-           (when (char? key)
-             (tx/cursor-right!)
-             (on-change (insert-char value key x))))}
+           (if (char? key)
+             (do
+               (tx/cursor-right!)
+               (on-change (insert-char value key x)))
+             (case key
+               :backspace
+               (do
+                 (when (< 0 x)
+                   (tx/cursor-left!)
+                   (on-change (remove-char value (dec x)))))
+               nil)))}
    value])
 
 (defn task-view [task]
