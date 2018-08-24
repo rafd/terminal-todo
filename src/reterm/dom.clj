@@ -1,7 +1,8 @@
 (ns reterm.dom
   (:require
     [clojure.walk :as walk]
-    [reterm.views.input :refer [input-view]]))
+    [reterm.views.input :refer [input-view]]
+    [reterm.views.inspector :refer [inspector-view]]))
 
 (defn- node->type [node]
   (cond
@@ -63,6 +64,8 @@
   (let [[type opts & nodes] (case type
                               :input
                               (input-view opts)
+                              :inspector
+                              (inspector-view opts)
                               ; else
                               (concat [type opts] nodes))
         ; adjust context based on opts
