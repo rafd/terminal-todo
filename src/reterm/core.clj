@@ -8,24 +8,24 @@
 (defn- run-loop! [screen root-component]
   (let [[width height] (s/get-size screen)
         root-dom-node (dom/calculate-root {:width width
-                                           :height height} 
+                                           :height height}
                                           root-component)]
     (state/store-screen-size! [width height])
     (draw! screen root-dom-node)
-     
+
     (let [cursor (state/cursor)]
-      (when (cursor :value) 
-        (s/put-string screen 
+      (when (cursor :value)
+        (s/put-string screen
                       (cursor :x)
                       (cursor :y)
                       (cursor :value)))
       (s/move-cursor screen
                      (cursor :x)
                      (cursor :y)))
-     
+
     (s/redraw screen)
-     
-    (state/handle-key! (s/get-key-blocking screen) 
+
+    (state/handle-key! (s/get-key-blocking screen)
                        root-dom-node)))
 
 (defn start! [mode root-component]

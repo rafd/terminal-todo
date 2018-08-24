@@ -23,9 +23,9 @@
 ; for example...
 ; input:
 
-[:div {} 
- [:div {} 
-  "foo" 
+[:div {}
+ [:div {}
+  "foo"
   [:input {} "bar"]
   (for [word ["hello" "world"]]
     word)]]
@@ -41,7 +41,7 @@
             :content [{:type :string
                        :context {:x "..."}
                        :value "foo"}
-                      {:type :input 
+                      {:type :input
                        :context {:x "..."}
                        :opts {}
                        :content [{:type :string
@@ -93,7 +93,7 @@
                           [node]))
                       nodes)
         ; layout children and calculate size of this div
-        node-data (reduce 
+        node-data (reduce
                     (fn [memo node]
                       (let [initial-context (:next-initial-context (last memo))
                             div-wh (:div-wh (last memo))
@@ -104,7 +104,7 @@
                                      :string ; inline-like
                                      {:node node-info
                                       :next-initial-context
-                                      (-> initial-context 
+                                      (-> initial-context
                                           (assoc :x (+ (initial-context :x) (new-context :width)))
                                           (assoc :y (+ (initial-context :y) (new-context :height) -1)))
                                       :div-wh
@@ -113,21 +113,21 @@
                                      ; default ; block-like
                                      {:node node-info
                                       :next-initial-context
-                                      (-> initial-context 
+                                      (-> initial-context
                                           (assoc :x (initial-context :x))
                                           (assoc :y (+ (initial-context :y) (new-context :height))))
                                       :div-wh
                                       {:width (+ (div-wh :width) (new-context :width))
                                        :height (+ (div-wh :height) (new-context :height))}}))))
-                    [{:next-initial-context context 
+                    [{:next-initial-context context
                       :div-wh {:width 0
                                :height 0}}]
                     nodes)]
     {:type type
      :opts opts
      :context (assoc context
-                     :width (max (context :width) (-> node-data last :div-wh :width)) 
-                     :height (max (context :height) (-> node-data last :div-wh :height))) 
+                     :width (max (context :width) (-> node-data last :div-wh :width))
+                     :height (max (context :height) (-> node-data last :div-wh :height)))
      :content (mapv :node (rest node-data))}))
 
 (defmethod calculate :fn-list
@@ -142,7 +142,7 @@
                     :height 1})
    :value value})
 
-(defn calculate-root 
+(defn calculate-root
   [{:keys [width height]} root-component]
   (let [root-context {:width width
                       :height height

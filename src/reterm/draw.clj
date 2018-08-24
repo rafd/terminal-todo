@@ -9,18 +9,18 @@
 
     ; draw the background
     (doall
-      (for [x (range (context :x) (+ (context :x) 
+      (for [x (range (context :x) (+ (context :x)
                                      (context :width)))
-            y (range (context :y) (+ (context :y) 
+            y (range (context :y) (+ (context :y)
                                      (context :height)))]
-        (s/put-string screen 
+        (s/put-string screen
                       x y
                       " "
                       {:bg (context :bg)})))
 
     ; draw content
     (doall
-     (for [dom-node content] 
+     (for [dom-node content]
        (draw! screen dom-node))))
 
 (defmethod draw! :string
