@@ -8,15 +8,16 @@
   [screen {:keys [opts context content]}]
 
     ; draw the background
-    (doall
-      (for [x (range (context :x) (+ (context :x)
-                                     (context :width)))
-            y (range (context :y) (+ (context :y)
-                                     (context :height)))]
-        (s/put-string screen
-                      x y
-                      " "
-                      {:bg (context :bg)})))
+    (when (context :bg)
+      (doall
+        (for [x (range (context :x) (+ (context :x)
+                                       (context :width)))
+              y (range (context :y) (+ (context :y)
+                                       (context :height)))]
+          (s/put-string screen
+                        x y
+                        " "
+                        {:bg (context :bg)}))))
 
     ; draw content
     (doall
@@ -29,7 +30,10 @@
                 (context :x)
                 (context :y)
                 value
-                {:bg (context :bg)
+                ;; use :bg-fall-through instead of :bg
+                ;; because :bg may be nil ("transparent")
+                ;; but our strings need a background
+                {:bg (context :bg-fall-through)
                  :fg (context :fg)}))
 
 (defmethod draw! :default

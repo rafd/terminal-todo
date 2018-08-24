@@ -69,10 +69,15 @@
                               ; else
                               (concat [type opts] nodes))
         ; adjust context based on opts
-        context {:x (+ (parent-context :x)
-                       (or (opts :x) 0))
-                 :y (+ (parent-context :y)
-                       (or (opts :y) 0))
+        context {:x (if (= (opts :position) :absolute)
+                      (or (opts :x) 0)
+                      (+ (parent-context :x)
+                         (or (opts :x) 0)))
+                 :y (if (= (opts :position) :absolute)
+                      (or (opts :y) 0)
+                      (+ (parent-context :y)
+                         (or (opts :y) 0)))
+                 :position (or (opts :position) :relative)
                  :width (or (opts :width)
                             (- (parent-context :width)
                                (or (opts :x) 0)))
@@ -87,8 +92,11 @@
                            1)
                  :fg (or (opts :fg)
                          (parent-context :fg))
-                 :bg (or (opts :bg)
-                         (parent-context :bg))}
+                 ;; need to keep track of last non-nil :bg
+                 ;; so that strings can be drawn properly
+                 :bg-fall-through (or (opts :bg)
+                                      (parent-context :bg-fall-through))
+                 :bg (opts :bg)}
         ; unwrap any nested lists
         nodes (mapcat (fn [node]
                         (if (nil? (node->type node))
@@ -103,25 +111,30 @@
                             node-type (node->type node)
                             node-info (calculate initial-context node)
                             new-context (:context node-info)]
-                        (conj memo (case node-type
-                                     :string ; inline-like
+                        (conj memo (if (= (new-context :position) :absolute)
                                      {:node node-info
-                                      :next-initial-context
-                                      (-> initial-context
-                                          (assoc :x (+ (initial-context :x) (new-context :width)))
-                                          (assoc :y (+ (initial-context :y) (new-context :height) -1)))
-                                      :div-wh
-                                      {:width (+ (div-wh :width) (new-context :width))
-                                       :height (+ (div-wh :height) (new-context :height) -1)}}
-                                     ; default ; block-like
-                                     {:node node-info
-                                      :next-initial-context
-                                      (-> initial-context
-                                          (assoc :x (initial-context :x))
-                                          (assoc :y (+ (initial-context :y) (new-context :height))))
-                                      :div-wh
-                                      {:width (+ (div-wh :width) (new-context :width))
-                                       :height (+ (div-wh :height) (new-context :height))}}))))
+                                      :next-initial-context initial-context
+                                      :div-wh {:width 0
+                                               :height 0}}
+                                     (case node-type
+                                       :string ; inline-like
+                                       {:node node-info
+                                        :next-initial-context
+                                        (-> initial-context
+                                            (assoc :x (+ (initial-context :x) (new-context :width)))
+                                            (assoc :y (+ (initial-context :y) (new-context :height) -1)))
+                                        :div-wh
+                                        {:width (+ (div-wh :width) (new-context :width))
+                                         :height (+ (div-wh :height) (new-context :height) -1)}}
+                                       ; default ; block-like
+                                       {:node node-info
+                                        :next-initial-context
+                                        (-> initial-context
+                                            (assoc :x (initial-context :x))
+                                            (assoc :y (+ (initial-context :y) (new-context :height))))
+                                        :div-wh
+                                        {:width (+ (div-wh :width) (new-context :width))
+                                         :height (+ (div-wh :height) (new-context :height))}})))))
                     [{:next-initial-context context
                       :div-wh {:width 0
                                :height 0}}]

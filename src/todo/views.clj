@@ -37,5 +37,5 @@
                           :escape (tx/stop!)
                           ; default
                           nil))}
-   [:inspector {}]
-   [groups-view (sub/groups)]])
+   [groups-view (sub/groups)]
+   [:inspector {}]])

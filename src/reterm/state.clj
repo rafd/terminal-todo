@@ -71,14 +71,15 @@
             (mapcat ->nodes (dom-node :content)))
     [dom-node]))
 
-(defn handle-key! [key root-dom-node]
-  ; loop through all nodes
-  ; filter those whose dimensions cover the cursor
-  ; call :on-keypress on the nodes (in order of child->parent->root, ie. capture)
-
+(defn handle-key!
+  [key root-dom-node]
   (let [containing-nodes
         (->> root-dom-node
              ->nodes
+             ;; only keep nodes with an :on-keypress
+             (filter (fn [dom-node]
+                       (get-in dom-node [:opts :on-keypress])))
+             ;; only keep nodes whose bounds contain the cursor
              (filter (fn [dom-node]
                        (and (<= (get-in dom-node [:context :x])
                                 (get-in (cursor) [:x])
@@ -91,11 +92,12 @@
                                    (get-in dom-node [:context :height])
                                    -1)))))
              reverse)]
+    ;; call :on-keypress on the nodes (in order of child->parent->root, ie. capture)
     (doseq [dom-node containing-nodes]
-      (when-let [on-keypress-fn (get-in dom-node [:opts :on-keypress])]
-        (let [relative-cursor-position {:x (- (get (cursor) :x)
-                                              (get-in dom-node [:context :x]))
-                                        :y (- (get (cursor) :y)
-                                              (get-in dom-node [:context :y]))}]
-          (on-keypress-fn key relative-cursor-position))))))
+      (let [on-keypress-fn (get-in dom-node [:opts :on-keypress])
+            relative-cursor-position {:x (- (get (cursor) :x)
+                                            (get-in dom-node [:context :x]))
+                                      :y (- (get (cursor) :y)
+                                            (get-in dom-node [:context :y]))}]
+        (on-keypress-fn key relative-cursor-position)))))
 

@@ -7,10 +7,12 @@
 
 (defn- run-loop! [screen root-component]
   (let [[width height] (s/get-size screen)
+        ;; store size immediately so that it
+        ;; can be accessed by certain views
+        _ (state/store-screen-size! [width height])
         root-dom-node (dom/calculate-root {:width width
                                            :height height}
                                           root-component)]
-    (state/store-screen-size! [width height])
     (draw! screen root-dom-node)
 
     (let [cursor (state/cursor)]
