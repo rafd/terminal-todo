@@ -1,4 +1,4 @@
-(ns reterm.views
+(ns reterm.views.input
   (:require
     [reterm.state :as rs]))
 
