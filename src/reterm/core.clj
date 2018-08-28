@@ -27,8 +27,9 @@
 
     (s/redraw screen)
 
-    (state/handle-key! (s/get-key-blocking screen)
-                       root-dom-node)))
+    (state/handle-keypress!
+      (s/get-key-blocking-with-modifiers screen)
+      root-dom-node)))
 
 (defn start! [mode root-component]
   (let [screen (s/get-screen mode)]

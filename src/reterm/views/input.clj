@@ -19,7 +19,7 @@
 (defn input-view
   [{:keys [value on-change]}]
   [:div {:on-keypress
-         (fn [key {:keys [x]}]
+         (fn [{:keys [key x]}]
            (if (char? key)
              (do
                (rs/cursor-right!)

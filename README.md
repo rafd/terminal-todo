@@ -24,9 +24,8 @@ Ex.
 
 (defn app-view []
   [:div {:bg :red
-         :on-keypress (fn [key _]
-                        (println "pressed" key)
-                        (case key
+         :on-keypress (fn [event]
+                        (case (event :key)
                           :escape (r/stop!)
                           nil))}
    [:div {:bg :blue} "hello" " " "world"]

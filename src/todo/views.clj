@@ -28,8 +28,8 @@
 (defn app-view []
   [:div {:height :stretch
          :bg :green
-         :on-keypress (fn [key _]
-                        (case key
+         :on-keypress (fn [event]
+                        (case (event :key)
                           :up (tx/cursor-up!)
                           :down (tx/cursor-down!)
                           :left (tx/cursor-left!)

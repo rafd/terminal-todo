@@ -71,8 +71,8 @@
             (mapcat ->nodes (dom-node :content)))
     [dom-node]))
 
-(defn handle-key!
-  [key root-dom-node]
+(defn handle-keypress!
+  [event root-dom-node]
   (let [containing-nodes
         (->> root-dom-node
              ->nodes
@@ -99,5 +99,5 @@
                                             (get-in dom-node [:context :x]))
                                       :y (- (get (cursor) :y)
                                             (get-in dom-node [:context :y]))}]
-        (on-keypress-fn key relative-cursor-position)))))
+        (on-keypress-fn (merge event relative-cursor-position))))))
 
