@@ -5,9 +5,13 @@
     [todo.state :refer [state]]
     [todo.generate :refer [generate-state]]))
 
-(defn update-task-description! 
+(defn update-task-description!
   [id description]
   (swap! state assoc-in [:tasks id :description] description))
+
+(defn delete-task!
+  [id]
+  (swap! state update :tasks dissoc id))
 
 (defn init! []
   (reset! state (generate-state)))

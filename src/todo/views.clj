@@ -4,7 +4,10 @@
     [todo.transact :as tx]))
 
 (defn task-view [task]
-  [:div {}
+  [:div {:on-keypress (fn [event]
+                        (when (and (= \d (event :key))
+                                   (event :ctrl))
+                          (tx/delete-task! (task :id))))}
    (str "[" (task :tag) "]" " ")
    [:input {:value (task :description)
             :on-change (fn [value]
