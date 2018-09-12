@@ -17,21 +17,22 @@
     s))
 
 (defn input-view
-  [{:keys [value on-change bg]}]
-  [:div {:bg bg
-         :clear false
-         :on-keypress
-         (fn [{:keys [key x]}]
-           (if (char? key)
-             (do
-               (rs/cursor-right!)
-               (on-change (insert-char value key x)))
-             (case key
-               :backspace
+  [{:keys [value on-change] :as opts}]
+  [:div (merge
+          {:clear false
+           :on-keypress
+           (fn [{:keys [key x]}]
+             (if (char? key)
                (do
-                 (when (< 0 x)
-                   (rs/cursor-left!)
-                   (on-change (remove-char value (dec x)))))
-               nil)))}
+                 (rs/cursor-right!)
+                 (on-change (insert-char value key x)))
+               (case key
+                 :backspace
+                 (do
+                   (when (< 0 x)
+                     (rs/cursor-left!)
+                     (on-change (remove-char value (dec x)))))
+                 nil)))}
+          opts)
    value])
 

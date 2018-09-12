@@ -22,6 +22,7 @@
    [tag-view task]
    " "
    [:input {:value (task :description)
+            :width :stretch
             :on-change (fn [value]
                          (tx/update-task-description! (task :id) value))}]])
 
