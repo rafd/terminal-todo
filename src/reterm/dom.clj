@@ -55,41 +55,75 @@
                        :context {:x "..."}
                        :value "world"}]}]}
 
+(def opts-default
+  {:position :relative ;; :absolute
+   :width :content ;; :stretch integer
+   :height :content ;; :stretch integer
+   :clear true
+   :x-offset 0
+   :y-offset 0
+   :fg nil
+   :bg nil})
+
+(defn extract-opts
+  "Gets opts from a node, with defaults set"
+  [[_ opts & _ :as node]]
+  (merge-with (fn [a b]
+                (if (nil? b)
+                  a
+                  b))
+              opts-default
+              opts))
+
 (defmulti calculate
   (fn [parent-context node]
     (node->type node)))
 
 (defmethod calculate :keyword-list
-  [parent-context [type opts & nodes]]
-  (let [[type opts & nodes] (case type
-                              :input
-                              (input-view opts)
-                              :inspector
-                              (inspector-view opts)
-                              ; else
-                              (concat [type opts] nodes))
+  [parent-context [type opts & nodes :as node]]
+  (let [[type opts & nodes :as node] (case type
+                                       :input
+                                       (input-view opts)
+                                       :inspector
+                                       (inspector-view opts)
+                                       ; else
+                                       (concat [type opts] nodes))
+        opts (extract-opts node)
         ; adjust context based on opts
-        context {:x (if (= (opts :position) :absolute)
-                      (or (opts :x) 0)
+        context {:x (case (opts :position)
+                      :absolute
+                      (opts :x-offset)
+                      :relative
                       (+ (parent-context :x)
-                         (or (opts :x) 0)))
-                 :y (if (= (opts :position) :absolute)
-                      (or (opts :y) 0)
-                      (+ (parent-context :y)
-                         (or (opts :y) 0)))
-                 :position (or (opts :position) :relative)
-                 :width (or (opts :width)
+                         (opts :x-offset)))
+                 :y (case (opts :position)
+                     :absolute
+                     (opts :y-offset)
+                     :relative
+                     (+ (parent-context :y)
+                        (opts :y-offset)))
+                 :clear (opts :clear)
+                 :position (opts :position)
+                 :width (case (opts :width)
+                          :content
+                          :content ; will be replaced later with children's width
+                          :stretch
+                          (if (= :content (parent-context :width))
+                            :content
                             (- (parent-context :width)
-                               (or (opts :x) 0)))
-                 :height (cond
-                           (int? (opts :height))
-                           (opts :height)
-
-                           (= :stretch (opts :height))
-                           (parent-context :height)
-
-                           :else
-                           1)
+                               (opts :x-offset)))
+                          ;; else, integer
+                          (opts :width))
+                 :height (case (opts :height)
+                           :content
+                           :content ; will be replaced later with children's width
+                           :stretch
+                           (if (= :content (parent-context :height))
+                             :content
+                             (- (parent-context :height)
+                                (opts :y-offset)))
+                           ;; else, integer
+                           (opts :height))
                  :fg (or (opts :fg)
                          (parent-context :fg))
                  ;; need to keep track of last non-nil :bg
@@ -97,53 +131,82 @@
                  :bg-fall-through (or (opts :bg)
                                       (parent-context :bg-fall-through))
                  :bg (opts :bg)}
-        ; unwrap any nested lists
+        ;; unwrap any nested lists
         nodes (mapcat (fn [node]
                         (if (nil? (node->type node))
                           node
                           [node]))
                       nodes)
-        ; layout children and calculate size of this div
+        ;; layout children and calculate size of this div
         node-data (reduce
                     (fn [memo node]
                       (let [initial-context (:next-initial-context (last memo))
-                            div-wh (:div-wh (last memo))
+                            total-wh (:total-wh (last memo))
+                            clear? (and
+                                     ;; node is configured to clear
+                                     ;; TODO: figure out a way to avoid running calculate here
+                                     ;; because we're also calculating below
+                                     (:clear (:context (calculate initial-context node)))
+                                     ;; node is not at left-most edge
+                                     (not= (context :x) (initial-context :x)))
+                            initial-context (if clear?
+                                              ;; bump node to a new line
+                                              (-> initial-context
+                                                  (assoc :x (context :x))
+                                                  (assoc :width (context :width))
+                                                  (assoc :y (+ (context :y)
+                                                               (total-wh :height))))
+                                              initial-context)
                             node-type (node->type node)
                             node-info (calculate initial-context node)
-                            new-context (:context node-info)]
-                        (conj memo (if (= (new-context :position) :absolute)
-                                     {:node node-info
-                                      :next-initial-context initial-context
-                                      :div-wh {:width 0
-                                               :height 0}}
-                                     (case node-type
-                                       :string ; inline-like
-                                       {:node node-info
-                                        :next-initial-context
-                                        (-> initial-context
-                                            (assoc :x (+ (initial-context :x) (new-context :width)))
-                                            (assoc :y (+ (initial-context :y) (new-context :height) -1)))
-                                        :div-wh
-                                        {:width (+ (div-wh :width) (new-context :width))
-                                         :height (+ (div-wh :height) (new-context :height) -1)}}
-                                       ; default ; block-like
-                                       {:node node-info
-                                        :next-initial-context
-                                        (-> initial-context
-                                            (assoc :x (initial-context :x))
-                                            (assoc :y (+ (initial-context :y) (new-context :height))))
-                                        :div-wh
-                                        {:width (+ (div-wh :width) (new-context :width))
-                                         :height (+ (div-wh :height) (new-context :height))}})))))
+                            child-context (:context node-info)]
+                        (conj memo
+                              {:node node-info
+                               :next-initial-context (cond
+                                                       (= :absolute (child-context :position))
+                                                       initial-context
+
+                                                       :else
+                                                       (-> initial-context
+                                                           (assoc :width
+                                                                  (if (= :content (initial-context :width))
+                                                                    :content
+                                                                    (- (initial-context :width)
+                                                                       (child-context :width))))
+                                                           (assoc :x (+ (initial-context :x)
+                                                                        (child-context :width)))))
+                               :total-wh {:width (cond
+                                                   (= :absolute (child-context :position))
+                                                   (total-wh :width)
+
+                                                   clear?
+                                                   (max (total-wh :width) (child-context :width))
+
+                                                   :else
+                                                   (+ (total-wh :width)
+                                                      (child-context :width)))
+                                          :height (cond
+                                                    (= :absolute (child-context :position))
+                                                    (total-wh :height)
+
+                                                    clear?
+                                                    (+ (total-wh :height) (child-context :height))
+
+                                                    :else
+                                                    (max (total-wh :height) (child-context :height)))}})))
                     [{:next-initial-context context
-                      :div-wh {:width 0
-                               :height 0}}]
+                      :total-wh {:width 0
+                                 :height 0}}]
                     nodes)]
     {:type type
      :opts opts
      :context (assoc context
-                     :width (max (context :width) (-> node-data last :div-wh :width))
-                     :height (max (context :height) (-> node-data last :div-wh :height)))
+                     :width (if (= (context :width) :content)
+                              (-> node-data last :total-wh :width)
+                              (context :width))
+                     :height (if (= (context :height) :content)
+                               (-> node-data last :total-wh :height)
+                               (context :height)))
      :content (mapv :node (rest node-data))}))
 
 (defmethod calculate :fn-list
@@ -154,8 +217,10 @@
   [parent-context value]
   {:type :string
    :context (merge parent-context
-                   {:width (count value)
-                    :height 1})
+                   {:position :relative
+                    :width (count value)
+                    :height 1
+                    :clear false})
    :value value})
 
 (defn calculate-root

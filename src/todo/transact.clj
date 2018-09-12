@@ -9,6 +9,18 @@
   [id description]
   (swap! state assoc-in [:tasks id :description] description))
 
+(defn update-task-tag!
+  [id tag]
+  (swap! state assoc-in [:tasks id :tag] tag))
+
+(defn new-task!
+  [group-id]
+  (let [task {:id (gensym)
+              :description ""
+              :tag ""
+              :group-id group-id}]
+    (swap! state assoc-in [:tasks (task :id)] task)))
+
 (defn delete-task!
   [id]
   (swap! state update :tasks dissoc id))

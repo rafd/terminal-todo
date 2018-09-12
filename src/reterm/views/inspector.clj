@@ -13,7 +13,7 @@
                opts)
    ;; cursor xy
    [:div {:bg :black
-          :y (dec (get-in @state/state [:screen :height]))}
+          :y-offset (dec (get-in @state/state [:screen :height]))}
     ":x " (str (:x (state/cursor))) " "
     ":y " (str (:y (state/cursor))) " "
     ":last "

@@ -3,33 +3,57 @@
     [todo.subscribe :as sub]
     [todo.transact :as tx]))
 
+(defn tag-view
+  [task]
+  [:div {:clear false}
+   "["
+   [:input {:value (task :tag)
+            :on-change (fn [tag]
+                         (tx/update-task-tag! (task :id) tag))}]
+   "]"])
+
 (defn task-view [task]
-  [:div {:on-keypress (fn [event]
+  [:div {:width :stretch
+         :on-keypress (fn [event]
                         (when (and (= \d (event :key))
                                    (event :ctrl))
                           (tx/delete-task! (task :id))))}
-   (str "[" (task :tag) "]" " ")
+   " "
+   [tag-view task]
+   " "
    [:input {:value (task :description)
             :on-change (fn [value]
                          (tx/update-task-description! (task :id) value))}]])
 
 (defn tasks-view [tasks]
-  [:div {:x 1}
+  [:div {:bg :red
+         :width :stretch}
    (for [task tasks]
      [task-view task])])
 
 (defn group-view [group]
-  [:div {:bg :red}
-   [:div {:bg :blue} (group :description)]
+  [:div {:label "group-view"
+         :bg :black
+         :width :stretch
+         :on-keypress (fn [event]
+                        (when (and (= \i (event :key))
+                                   (event :ctrl))
+                          (tx/new-task! (group :id))))}
+   [:div {:bg :blue
+          :width :stretch}
+    (group :description)]
    [tasks-view (sub/group-tasks (group :id))]])
 
 (defn groups-view [groups]
-  [:div {:bg :yellow}
+  [:div {:label "groups-view"
+         :width :stretch}
    (for [group groups]
      [group-view group])])
 
 (defn app-view []
-  [:div {:height :stretch
+  [:div {:label "app-view"
+         :height :stretch
+         :width :stretch
          :bg :green
          :on-keypress (fn [event]
                         (case (event :key)
@@ -40,5 +64,6 @@
                           :escape (tx/stop!)
                           ; default
                           nil))}
-   [groups-view (sub/groups)]
-   [:inspector {}]])
+  [groups-view (sub/groups)]
+  [:inspector {}]])
+

@@ -17,8 +17,10 @@
     s))
 
 (defn input-view
-  [{:keys [value on-change]}]
-  [:div {:on-keypress
+  [{:keys [value on-change bg]}]
+  [:div {:bg bg
+         :clear false
+         :on-keypress
          (fn [{:keys [key x]}]
            (if (char? key)
              (do
