@@ -2,5 +2,5 @@
 
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [clojure-lanterna "0.9.7"]]
-  
+
   :main todo.core)
