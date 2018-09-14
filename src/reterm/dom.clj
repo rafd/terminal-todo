@@ -1,6 +1,7 @@
 (ns reterm.dom
   (:require
     [clojure.walk :as walk]
+    [reterm.specs :as spec]
     [reterm.views.input :refer [input-view]]
     [reterm.views.inspector :refer [inspector-view]]))
 
@@ -68,6 +69,7 @@
 (defn extract-opts
   "Gets opts from a node, with defaults set"
   [[_ opts & _ :as node]]
+  (spec/validate! :reterm.specs/div-opts opts)
   (merge-with (fn [a b]
                 (if (nil? b)
                   a
