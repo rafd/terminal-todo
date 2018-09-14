@@ -5,9 +5,10 @@
 
 (defn tag-view
   [task]
-  [:div {:clear false}
+  [:div {:position :relative}
    "["
-   [:input {:value (task :tag)
+   [:input {:position :relative
+            :value (task :tag)
             :on-change (fn [tag]
                          (tx/update-task-tag! (task :id) tag))}]
    "]"])
@@ -22,6 +23,7 @@
    [tag-view task]
    " "
    [:input {:value (task :description)
+            :position :relative
             :width :stretch
             :on-change (fn [value]
                          (tx/update-task-description! (task :id) value))}]])

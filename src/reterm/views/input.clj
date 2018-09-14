@@ -19,8 +19,7 @@
 (defn input-view
   [{:keys [value on-change] :as opts}]
   [:div (merge
-          {:clear false
-           :on-keypress
+          {:on-keypress
            (fn [{:keys [key x]}]
              (if (char? key)
                (do

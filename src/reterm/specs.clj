@@ -17,12 +17,11 @@
             :yellow}))
 
 (s/def ::label string?)
-(s/def ::position (s/spec #{:relative :absolute}))
+(s/def ::position (s/spec #{:relative :absolute :clear}))
 (s/def ::width (s/or :integer pos-int?
                      :special (s/spec #{:stretch :content})))
 (s/def ::height (s/or :integer pos-int?
                       :special (s/spec #{:stretch :content})))
-(s/def ::clear boolean?)
 (s/def ::x-offset int?)
 (s/def ::y-offset int?)
 (s/def ::fg ::color)
@@ -36,7 +35,6 @@
              ::position
              ::width
              ::height
-             ::clear
              ::x-offset
              ::y-offset
              ::on-keypress

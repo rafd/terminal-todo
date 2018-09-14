@@ -57,10 +57,9 @@
                        :value "world"}]}]}
 
 (def opts-default
-  {:position :relative ;; :absolute
+  {:position :clear ;; :absolute :relative
    :width :content ;; :stretch integer
    :height :content ;; :stretch integer
-   :clear true
    :x-offset 0
    :y-offset 0
    :fg nil
@@ -95,16 +94,15 @@
         context {:x (case (opts :position)
                       :absolute
                       (opts :x-offset)
-                      :relative
+                      (list :relative :clear)
                       (+ (parent-context :x)
                          (opts :x-offset)))
                  :y (case (opts :position)
-                     :absolute
-                     (opts :y-offset)
-                     :relative
-                     (+ (parent-context :y)
-                        (opts :y-offset)))
-                 :clear (opts :clear)
+                      :absolute
+                      (opts :y-offset)
+                      (list :relative :clear)
+                      (+ (parent-context :y)
+                         (opts :y-offset)))
                  :position (opts :position)
                  :width (case (opts :width)
                           :content
@@ -148,7 +146,7 @@
                                      ;; node is configured to clear
                                      ;; TODO: figure out a way to avoid running calculate here
                                      ;; because we're also calculating below
-                                     (:clear (:context (calculate initial-context node)))
+                                     (= :clear (:position (:context (calculate initial-context node))))
                                      ;; node is not at left-most edge
                                      (not= (context :x) (initial-context :x)))
                             initial-context (if clear?
@@ -177,24 +175,24 @@
                                                                        (child-context :width))))
                                                            (assoc :x (+ (initial-context :x)
                                                                         (child-context :width)))))
-                               :total-wh {:width (cond
-                                                   (= :absolute (child-context :position))
+                               :total-wh {:width (case (child-context :position)
+                                                   :absolute
                                                    (total-wh :width)
 
-                                                   clear?
+                                                   :clear
                                                    (max (total-wh :width) (child-context :width))
 
-                                                   :else
+                                                   :relative
                                                    (+ (total-wh :width)
                                                       (child-context :width)))
-                                          :height (cond
-                                                    (= :absolute (child-context :position))
+                                          :height (case (child-context :position)
+                                                    :absolute
                                                     (total-wh :height)
 
-                                                    clear?
+                                                    :clear
                                                     (+ (total-wh :height) (child-context :height))
 
-                                                    :else
+                                                    :relative
                                                     (max (total-wh :height) (child-context :height)))}})))
                     [{:next-initial-context context
                       :total-wh {:width 0
@@ -221,8 +219,7 @@
    :context (merge parent-context
                    {:position :relative
                     :width (count value)
-                    :height 1
-                    :clear false})
+                    :height 1})
    :value value})
 
 (defn calculate-root
