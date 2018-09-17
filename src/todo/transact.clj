@@ -33,4 +33,5 @@
 (def cursor-down! rs/cursor-down!)
 (def cursor-left! rs/cursor-left!)
 (def cursor-right! rs/cursor-right!)
+(def cursor-set! rs/cursor-set!)
 (def stop! r/stop!)

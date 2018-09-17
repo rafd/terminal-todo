@@ -36,25 +36,35 @@
 
 ; transactions
 
+(defn cursor-set!
+  "Expects a map with :x and :y
+   Values can be nil, an integer or a function"
+  [{:keys [x y]}]
+  (swap! state update :cursor
+         (fn [cursor]
+           (assoc cursor
+                  :x (let [x' (cond
+                                (nil? x) (cursor :x)
+                                (fn? x) (x (cursor :x))
+                                (int? x) x)]
+                      (bound 0 x' (get-in @state [:screen :width])))
+                  :y (let [y' (cond
+                                (nil? y) (cursor :y)
+                                (fn? y) (y (cursor :y))
+                                (int? y) y)]
+                      (bound 0 y' (get-in @state [:screen :height])))))))
+
 (defn cursor-up! []
-  (swap! state update-in [:cursor :y]
-         (fn [y]
-           (bound 0 (dec y) (get-in @state [:screen :height])))))
+  (cursor-set! {:y dec}))
 
 (defn cursor-down! []
-  (swap! state update-in [:cursor :y]
-         (fn [y]
-           (bound 0 (inc y) (get-in @state [:screen :height])))))
+  (cursor-set! {:y inc}))
 
 (defn cursor-left! []
-  (swap! state update-in [:cursor :x]
-         (fn [x]
-           (bound 0 (dec x) (get-in @state [:screen :width])))))
+  (cursor-set! {:x dec}))
 
 (defn cursor-right! []
-  (swap! state update-in [:cursor :x]
-         (fn [x]
-           (bound 0 (inc x) (get-in @state [:screen :width])))))
+  (cursor-set! {:x inc}))
 
 (defn set-running-state! [bool]
   (swap! state assoc :run? bool))
