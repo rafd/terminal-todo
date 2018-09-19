@@ -47,4 +47,6 @@
 
 (defn validate! [spec data]
   (when-not (s/valid? spec data)
-    (exp/expound spec data)))
+    (exp/expound spec data)
+    (println "Exit")
+    (System/exit 0)))
