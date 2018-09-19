@@ -13,7 +13,8 @@
                   :value nil}
          :screen {:width nil
                   :height nil}
-         :run? true}))
+         :run? true
+         :pre-draw-queue []}))
 
 ; helpers
 
@@ -25,6 +26,14 @@
     upper
     :else
     value))
+
+(defn ->nodes
+  "Given dom hierarchy, convert it to a single list of nodes"
+  [dom-node]
+  (if (dom-node :content)
+    (concat [(dissoc dom-node :content)]
+            (mapcat ->nodes (dom-node :content)))
+    [dom-node]))
 
 ; subscriptions
 
@@ -66,20 +75,30 @@
 (defn cursor-right! []
   (cursor-set! {:x inc}))
 
+(defn- schedule-on-next-draw! [f]
+  (swap! state update :pre-draw-queue conj f))
+
+(defn run-pre-draw-queue! [root-dom-node]
+  (doseq [f (@state :pre-draw-queue)]
+    (f root-dom-node))
+  (swap! state assoc :pre-draw-queue []))
+
+(defn cursor-jump! [id]
+  (schedule-on-next-draw!
+    (fn [root-dom-node]
+      (when-let [node (->> root-dom-node
+                           ->nodes
+                           (filter (fn [node]
+                                   (= id (get-in node [:opts :id]))))
+                           first)]
+        (cursor-set! (select-keys (node :context) [:x :y]))))))
+
 (defn set-running-state! [bool]
   (swap! state assoc :run? bool))
 
 (defn store-screen-size! [[width height]]
   (swap! state assoc :screen {:width width
                               :height height}))
-
-(defn ->nodes
-  "Given dom hierarchy, convert it to a single list of nodes"
-  [dom-node]
-  (if (dom-node :content)
-    (concat [(dissoc dom-node :content)]
-            (mapcat ->nodes (dom-node :content)))
-    [dom-node]))
 
 (defn handle-keypress!
   [event root-dom-node]

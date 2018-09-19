@@ -22,7 +22,8 @@
    " "
    [tag-view task]
    " "
-   [:input {:value (task :description)
+   [:input {:id (str "task-description-" (task :id))
+            :value (task :description)
             :position :relative
             :width :stretch
             :on-change (fn [value]

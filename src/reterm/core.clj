@@ -13,6 +13,9 @@
         root-dom-node (dom/calculate-root {:width width
                                            :height height}
                                           root-component)]
+
+    (state/run-pre-draw-queue! root-dom-node)
+
     (draw! screen root-dom-node)
 
     (let [cursor (state/cursor)]

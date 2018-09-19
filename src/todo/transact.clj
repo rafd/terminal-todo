@@ -19,7 +19,8 @@
               :description ""
               :tag ""
               :group-id group-id}]
-    (swap! state assoc-in [:tasks (task :id)] task)))
+    (swap! state assoc-in [:tasks (task :id)] task)
+    (rs/cursor-jump! (str "task-description-" (task :id)))))
 
 (defn delete-task!
   [id]

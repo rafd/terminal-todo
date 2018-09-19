@@ -28,12 +28,14 @@
 (s/def ::bg ::color)
 (s/def ::on-change fn?)
 (s/def ::on-keypress fn?)
+(s/def ::id string?)
 
 (s/def ::div-opts
   (spell/strict-keys
     :opt-un [::label
              ::position
              ::width
+             ::id
              ::height
              ::x-offset
              ::y-offset

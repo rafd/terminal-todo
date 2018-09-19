@@ -60,6 +60,7 @@
   {:position :clear ;; :absolute :relative
    :width :content ;; :stretch integer
    :height :content ;; :stretch integer
+   :id nil
    :x-offset 0
    :y-offset 0
    :fg nil
