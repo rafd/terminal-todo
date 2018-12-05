@@ -13,12 +13,23 @@
                          (tx/update-task-tag! (task :id) tag))}]
    "]"])
 
-(defn task-view [task]
+(defn task-view [group-id task]
   [:div {:width :stretch
          :on-keypress (fn [event]
-                        (when (and (= \d (event :key))
-                                   (event :ctrl))
-                          (tx/delete-task! (task :id))))}
+                        (cond
+                          (and (= \d (event :key))
+                               (event :ctrl))
+                          (tx/delete-task! (task :id))
+
+                          (and (= \j (event :key))
+                               (event :ctrl)
+                               (event :alt))
+                          (tx/move-task! group-id (task :id) :up)
+
+                          (and (= \k (event :key))
+                               (event :ctrl)
+                               (event :alt))
+                          (tx/move-task! group-id (task :id) :down)))}
    " "
    [tag-view task]
    " "
@@ -29,11 +40,11 @@
             :on-change (fn [value]
                          (tx/update-task-description! (task :id) value))}]])
 
-(defn tasks-view [tasks]
+(defn tasks-view [group-id tasks]
   [:div {:bg :red
          :width :stretch}
    (for [task tasks]
-     [task-view task])])
+     [task-view group-id task])])
 
 (defn group-view [group]
   [:div {:label "group-view"
@@ -46,7 +57,7 @@
    [:div {:bg :blue
           :width :stretch}
     (group :description)]
-   [tasks-view (sub/group-tasks (group :id))]])
+   [tasks-view (group :id) (sub/group-tasks (group :id))]])
 
 (defn groups-view [groups]
   [:div {:label "groups-view"

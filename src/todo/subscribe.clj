@@ -6,8 +6,5 @@
   (vals (@state :groups)))
 
 (defn group-tasks [group-id]
-  (->> @state
-       :tasks
-       vals
-       (filter (fn [task]
-                 (= group-id (task :group-id))))))
+  (let [task-ids (get-in @state [:groups group-id :task-ids])]
+    (vals (select-keys (@state :tasks) task-ids))))
