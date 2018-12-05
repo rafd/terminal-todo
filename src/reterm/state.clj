@@ -56,12 +56,12 @@
                                 (nil? x) (cursor :x)
                                 (fn? x) (x (cursor :x))
                                 (int? x) x)]
-                      (bound 0 x' (get-in @state [:screen :width])))
+                      (bound 0 x' (dec (get-in @state [:screen :width]))))
                   :y (let [y' (cond
                                 (nil? y) (cursor :y)
                                 (fn? y) (y (cursor :y))
                                 (int? y) y)]
-                      (bound 0 y' (get-in @state [:screen :height])))))))
+                      (bound 0 y' (dec (get-in @state [:screen :height]))))))))
 
 (defn cursor-up! []
   (cursor-set! {:y dec}))
